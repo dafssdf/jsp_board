@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--이 코드가 있어야 쿼리문 사용가능 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="board">
+	<!--조인을 통해서 memberId와 board테이블에 있는 값을 가져온다. -->
+	<select id="selectAll" resultType="BoardVO" parameterType="map">
+		select board_number, board_title, board_content,
+		board_date,board_read_count,m.member_number,
+		m.member_id
+		from tbl_member
+		m join tbl_board b
+		on m.member_number = b.member_number
+		order by
+		board_number desc
+		limit #{startRow},#{rowCount}
+	</select>
+
+	<!--board 테이블에 있는 모든 칼럼의 갯수를 count를 사용해서 가져온다. -->
+	<select id="getTotal" resultType="_int">
+		select count(board_number) from
+		tbl_board
+	</select>
+
+	<!--글쓰기를 했을때 타이틀,내용,번호를 가지고 board 테이블의 내용을 넣어준다. -->
+	<insert id="insert" parameterType="BoardDTO">
+		insert into
+		tbl_board(board_title,board_content,member_number)
+		values(#{boardTitle},#{boardContent},#{memberNumber})
+	</insert>
+
+	<select id="getSequence" resultType="_int">
+		select last_insert_id();
+	</select>
+
+<!--board_number의 값을 입력해서 board 테이블에 멤버 넘버와, member테이블의 멤버 넘버와 똑같은 것의 정보를 가져온다 -->
+	<select id="select" parameterType="_int" resultType="BoardVo">
+		select
+		board_number ,board_title ,board_content ,board_date ,board_read_count,
+		m.member_number , m.member_id
+		from tbl_member m join tbl_board b
+		on board_number = #{boardNumber} and m.member_number = b.member_number ;
+
+	</select>
+
+<!--boardNumber의 값이 들어오면 그 board_read_count에 값이 1씩 증가 한다.  -->
+	<update id="updateReadCount" parameterType="_int">
+		update tbl_board
+		set board_read_count = board_read_count + 1
+		where board_number = #{boardNumber}
+	
+	</update>
+
+	<delete id="delete" parameterType="_int">
+		delete from tbl_board where board_number = #{boardNumber}
+	</delete>
+	
+	<update id="update" parameterType="BoardDTO">
+		update tbl_board
+		set board_title = #{boardTitle}, board_content = #{boardContent}
+		where board_number = #{boardNumber}
+	</update>
+
+</mapper>
+
+
+
+
+
+
